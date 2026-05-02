@@ -42,9 +42,9 @@ df = pd.DataFrame({
     "Age": np.random.randint(18, 90, n),
     "Gender": np.random.choice(["Male", "Female"], n),
     "AdmissionType": np.random.choice(["Emergency", "Urgent", "Elective"], n),
-    "HeartRate": np.random.randint(60, 150, n),
-    "BloodPressure": np.random.randint(80, 180, n),
-    "Temperature": np.round(np.random.uniform(36, 41, n), 1),
+    "HeartRate": np.nan,
+    "BloodPressure": np.nan,
+    "Temperature": np.nan,
     "GlucoseLevel": np.random.randint(70, 200, n),
     "Arrival_Time" : np.random.choice(test_list , n),
     "Departure_Time" : np.random.choice(test_list2 , n) ,
@@ -56,12 +56,171 @@ df = pd.DataFrame({
 df["Arrival_Time"] = df["Arrival_Time"].astype(str) + "  am"
 df["Departure_Time"] = df["Departure_Time"].astype(str) + "  pm"
 
-df["Diagnosis"].loc[(df["Age"]  <= 40) & (df["AdmissionType"] =="Elective") & (df["BloodPressure"] <= 100) & (df["Temperature"] <= 38) ] = "Normal"
+heartrateLow = [i for i in range(60,81)]
+bloodpressureLow = [i for i in range(100,120)]
+
+mask = (df["AdmissionType"] == "Elective") & (df["Diagnosis"] == "Normal")
+
+df.loc[mask, "HeartRate"] = np.random.choice(heartrateLow, size=mask.sum(), replace=False)
+
+df.loc[mask, "BloodPressure"] = np.random.choice(bloodpressureLow, size=mask.sum(), replace=False)
+
+
+df.loc[mask, "Temperature"] = np.round(np.random.uniform(36, 38, size=mask.sum()), 1)
+
+mask = (df["AdmissionType"] == "Elective") & (df["Diagnosis"] == "Normal") & (df["Age"] < 50) & (df["Temperature"] <= 38) & (df["BloodPressure"] <= 120) & (df["HeartRate"] <= 81)
+
+df.loc[mask, "Outcome"] = "0.0"
+
+mask = (df["AdmissionType"] == "Urgent") & (df["Diagnosis"] == "Diabetes")
+
+df.loc[mask , "HeartRate"] = np.random.randint(90 , 100 , mask.sum())
+
+df.loc[mask , "BloodPressure"] = np.random.randint(110 , 140 , mask.sum())
+
+df.loc[mask,"Temperature"] = np.round(np.random.uniform(37 , 39 ,size = mask.sum()) , 1)
+
+mask = mask = (df["AdmissionType"] == "Emergency") & (df["Diagnosis"] == "Diabetes")
+df.loc[mask , "HeartRate"] = np.random.randint(90 , 100 , mask.sum())
 
 
 
-df["Outcome"].loc[(df["Age"]  <= 40) & (df["AdmissionType"] =="Elective") & (df["BloodPressure"] <= 130) & (df["Diagnosis"] == "Normal") & (df["Temperature"] <= 38) | (df["HeartRate"] <= 110)] = "0"
+df.loc[mask , "BloodPressure"] = np.random.randint(141 , 150 , mask.sum())
+df.loc[mask,"Temperature"] = np.round(np.random.uniform(37 , 39 ,size = mask.sum()) , 1)
+
+mask = (df["Age"] <= 55) & ((df["HeartRate"] >= 90) & (df["HeartRate"] <= 118)) & ( (df["BloodPressure"] >= 110) &(df["BloodPressure"] ) <= 150) 
+
+df.loc[mask,"Outcome"] = "0.4"
+
+mask = ((df["Age"] <= 70) & (df["Age"] >= 55)) & ((df["HeartRate"] >= 90) & (df["HeartRate"] <= 118)) & ( (df["BloodPressure"] >= 110) & (df["BloodPressure"] <= 150) )
+
+df.loc[mask,"Outcome"] = "0.7"
 
 
+mask =  (df["AdmissionType"] == "Emergency") 
+
+
+
+df.loc[mask, "Temperature"] = np.round(np.random.uniform(37,39 , size = mask.sum()) , 1)
+df.loc[mask, "BloodPressure"] = np.random.randint(155 , 170 , mask.sum())
+df.loc[mask, "HeartRate"] = np.random.randint(112 , 130, mask.sum())
+
+
+
+mask = (df["Age"] >= 65) & ((df["HeartRate"] >= 112) & (df["HeartRate"] <= 130)) & ( (df["BloodPressure"] >= 155) &(df["BloodPressure"] ) <= 170) 
+
+df.loc[mask,"Outcome"] = "1.0"
+
+df =df.drop(columns = ["Medication" ,"GlucoseLevel" ,"Gender"])
+
+mask =  ((df["AdmissionType"] == "Emergency") | (df["AdmissionType"] == "Urgent"))&(df["Diagnosis"] == "Sepsis")
+
+
+
+df.loc[mask, "Temperature"] = np.round(np.random.uniform(37,39 , size = mask.sum()) , 1)
+df.loc[mask, "BloodPressure"] = np.random.randint(155 , 190 , mask.sum())
+df.loc[mask, "HeartRate"] = np.random.randint(130, 150, mask.sum())
+df.loc[mask,"Outcome"] = "1.0"
+
+mask = (df["Age"] >= 80) & (df["AdmissionType"] == "Urgent")
+
+df.loc[mask,"Outcome"] = np.random.choice(["0.7","1.0"], mask.sum())
+
+mask = ((df["Age"] >= 55) & (df["Age"] <= 70)) & (df["AdmissionType"] == "Urgent")
+
+df.loc[mask,"Outcome"] = "0.7"
+
+mask = (df["Age"] <= 70) & (df["AdmissionType"] == "Urgent")
+
+df.loc[mask,"Outcome"] = "0.7"
+#mask =(df["Age"] >= 55) & ()
+mask = (df["Age"] <= 70) & (df["Diagnosis"] == "Hypertension") 
+
+df.loc[mask,"Outcome"] = "0.7"
+
+mask = (df["Age"] <= 70) & (df["Diagnosis"] == "Sepsis")
+
+df.loc[mask,"Outcome"] = "1.0"
+
+
+mask = (df["Diagnosis"] == "Sepsis")
+
+df.loc[mask , "HeartRate"] = np.random.randint(120, 150, mask.sum())
+df.loc[mask , "BloodPressure"] = np.random.randint(130, 190, mask.sum())
+df.loc[mask , "Temperature"] = np.round(np.random.uniform(37,39 , size = mask.sum()) , 1)
+
+
+
+mask = ((df["Age"] > 55) & (df["Age"] <= 70))& ((df["AdmissionType"] == "Elective") | (df["AdmissionType"] == "Urgent") ) & ((df["Diagnosis"] == "Hypertension") | (df["Diagnosis"] == "Diabetes"))
+
+df.loc[mask , "Outcome"] = "0.7"
+
+mask = (df["Age"] > 70) & ((df["AdmissionType"] == "Elective") | (df["AdmissionType"] == "Urgent") ) & ((df["Diagnosis"] == "Hypertension") | (df["Diagnosis"] == "Diabetes"))
+
+df.loc[mask , "Outcome"] = "1.0"
+
+mask = (df["Age"] > 70) & ((df["AdmissionType"] == "Emergency")  ) & ((df["Diagnosis"] == "Hypertension") | (df["Diagnosis"] == "Diabetes"))
+
+df.loc[mask , "Outcome"] = "1.0"
+
+mask = (df["Age"] > 70) & ((df["AdmissionType"] == "Emergency") |
+(df["AdmissionType"] == "Elective"))& ((df["Diagnosis"] == "Normal") )
+
+df.loc[mask , "Outcome"] = np.random.choice(["0.7" , "1.0" ], mask.sum())
+
+df["Outcome"].iloc[93] = "0.0"
+#print(df["Outcome"].iloc[93])
+mask = (df["Age"] < 55) & (df["AdmissionType"] == "Emergency") & ((df["Diagnosis"] == "Hypertension") | (df["Diagnosis"] == "Normal"))
+df.loc[mask , "Outcome"] = "0.4"
+df["Outcome"].iloc[18] = "0.4"
+df["Outcome"].iloc[13] = "1.0"
+
+mask = (df["Age"] <= 55) & ((df["AdmissionType"] == "Elective")  ) & ((df["Diagnosis"] == "Hypertension") | (df["Diagnosis"] == "Diabetes"))
+
+df.loc[mask , "Outcome"] = "0.4"
+
+print(df.loc[df["Outcome"].isna()])
+
+df["Outcome"].iloc[17] = "0.7"
+df["Outcome"].iloc[28] = "0.4"
+df["Outcome"].iloc[43] =  "1.0"
+df["Outcome"].iloc[45] =  "0.7"
+df["Outcome"].iloc[59] = "0.4"
+df["Outcome"].iloc[66] = "1.0"
+df["Outcome"].iloc[68] = "0.7"
+
+mask = (df["AdmissionType"] == "Urgent") & (df["Diagnosis"] == "Normal")
+
+df.loc[mask , "HeartRate"] = np.random.randint(70 , 90 , mask.sum())
+
+df.loc[mask , "BloodPressure"] = np.random.randint(110 , 130 , mask.sum())
+
+df.loc[mask,"Temperature"] = np.round(np.random.uniform(36 , 38 ,size = mask.sum()) , 1)
+
+
+mask = (df["AdmissionType"] == "Urgent") & (df["Diagnosis"] == "Hypertension")
+
+df.loc[mask , "HeartRate"] = np.random.randint(112 , 118 , mask.sum())
+
+df.loc[mask , "BloodPressure"] = np.random.randint(130 , 170 , mask.sum())
+
+df.loc[mask,"Temperature"] = np.round(np.random.uniform(38 , 39 ,size = mask.sum()) , 1)
+
+
+mask = (df["AdmissionType"] == "Elective") & (df["Diagnosis"] == "Diabetes")
+
+df.loc[mask , "HeartRate"] = np.random.randint(80 , 90 , mask.sum())
+
+df.loc[mask , "BloodPressure"] = np.random.randint(110 , 130 , mask.sum())
+
+df.loc[mask,"Temperature"] = np.round(np.random.uniform(37 , 38 ,size = mask.sum()) , 1)
+
+mask = (df["AdmissionType"] == "Elective") & (df["Diagnosis"] == "Hypertension")
+
+df.loc[mask , "HeartRate"] = np.random.randint(100 , 110 , mask.sum())
+
+df.loc[mask , "BloodPressure"] = np.random.randint(130 , 170 , mask.sum())
+
+df.loc[mask,"Temperature"] = np.round(np.random.uniform(37, 39 ,size = mask.sum()) , 1)
 
 df.to_csv("/storage/emulated/0/Documents/CSV Viewer/Hospital_test.csv",index = False)
